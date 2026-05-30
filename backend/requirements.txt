@@ -1,0 +1,13 @@
+torch
+fastapi
+uvicorn
+pandas
+numpy
+streamlit
+scikit-learn
+python-dotenv
+google-generativeai
+elevenlabs
+requests
+plotly
+scikit-learn

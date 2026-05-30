@@ -1,9 +1,3 @@
-# Smart-Nepal-Hydro
-
-A machine learning project that predicts the incoming disasters and show the effects of those on hydro power plant
-
----
-
 # Hackathon-Hydro
 
 A full-stack AI-powered hydrological monitoring and disaster prediction application for Nepal.
@@ -12,7 +6,7 @@ A full-stack AI-powered hydrological monitoring and disaster prediction applicat
 
 ```
 Hackathon-Hydro/
-├── frontend/          # Vite + React + Bun frontend
+├── frontend/         # Vite + React + Bun frontend
 │   ├── src/
 │   │   ├── components/
 │   │   ├── lib/
@@ -21,18 +15,16 @@ Hackathon-Hydro/
 │   │   ├── data/
 │   │   ├── styles.css
 │   │   └── router.tsx
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── vite.config.ts
-├── backend/           # FastAPI Python backend
+│   └── [config files]
+├── backend/          # FastAPI Python backend
 │   ├── app/
 │   │   ├── routes/
-│   │   ├── models/
-│   │   └── main.py
+│   │   └── models/
 │   ├── audio/
+│   ├── Datasets/
 │   ├── requirements.txt
 │   └── [additional scripts]
-└── [config files]
+└── .env              # Environment variables
 ```
 
 ## Quick Start
