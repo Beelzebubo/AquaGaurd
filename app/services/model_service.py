@@ -38,7 +38,7 @@ model = FloodModel()
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Trained model ko file ka xa bhanera path define garxa. Models folder vitra flood_model.pth file xa jasma trained model ko weights stored xa.
 # torch.load() le .pth file ma stored weights load garxa ani model.load_state_dict() le loaded weights lai model ma set garxa
-MODEL_PATH = BASE_DIR / "models" / "flood_model.pth"
+MODEL_PATH = BASE_DIR / "models" / "flood_prediction_weights.pth"
 
 model.load_state_dict(
     torch.load(MODEL_PATH)
