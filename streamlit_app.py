@@ -23,7 +23,7 @@ MASTER_CSV = os.path.join(CHISAPANI_DIR, "chisapani_master_cleaned.csv")
 # Page Config
 # ─────────────────────────────────────────────
 st.set_page_config(
-    page_title="AquaGuard Nepal",
+    page_title="PeakFlow Analytics",
     page_icon="🏔️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -373,8 +373,8 @@ def make_gauge(value, title, max_val=100, color="#00D4AA"):
 # ─────────────────────────────────────────────
 st.markdown("""
 <div class="hero-container">
-    <div class="hero-title">🏔️ AquaGuard Nepal</div>
-    <div class="hero-sub">AI-Powered Hydropower ESG Monitoring &amp; IFC PS4 Compliance Dashboard</div>
+    <div class="hero-title">🏔️ PeakFlow Analytics</div>
+    <div class="hero-sub">AI-Powered Hydropower ESG Risk Intelligence &amp; IFC PS4 Compliance Platform</div>
     <div class="hero-badge"><div class="pulse-dot"></div> System Online — Real-time Monitoring Active</div>
 </div>
 """, unsafe_allow_html=True)
@@ -411,7 +411,7 @@ with st.sidebar:
     anomaly_flag = st.checkbox("Anomaly Detected", value=False)
 
     st.markdown("---")
-    analyze = st.button("🔍 Run Full Analysis", use_container_width=True)
+    analyze = st.button("🔍 Run Full Analysis", width='stretch')
 
 
 # ─────────────────────────────────────────────
@@ -498,6 +498,7 @@ if analyze:
             "rainfall": rainfall,
             "river_flow": river_flow,
             "rolling_flow": rolling_flow,
+            "eco_threshold": eco_threshold,
         }
         alerts_result = call_api("/alerts", alerts_payload)
 
@@ -517,14 +518,14 @@ if analyze:
 
     if prediction_result:
         risk_val = prediction_result.get("predicted_risk", 0)
-        risk_pct = min(abs(risk_val) * 100, 100)
+        risk_pct = min(risk_val * 100, 100)
         r_color = risk_color(risk_pct)
 
         col_gauge, col_info = st.columns([1, 1])
         with col_gauge:
             st.markdown('<div class="gauge-container">', unsafe_allow_html=True)
             fig = make_gauge(risk_pct, "Flood Risk Score", color=r_color)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col_info:
@@ -573,7 +574,7 @@ if analyze:
         with cc2:
             st.markdown('<div class="gauge-container">', unsafe_allow_html=True)
             comp_gauge = make_gauge(comp_score, "Compliance Rating", color=badge_color)
-            st.plotly_chart(comp_gauge, use_container_width=True)
+            st.plotly_chart(comp_gauge, width='stretch')
             st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.warning("⚠️ Could not reach the Compliance API.")
@@ -741,8 +742,7 @@ if discharge_df is not None and not discharge_df.empty:
         yaxis=dict(
             gridcolor="rgba(255,255,255,0.05)",
             showgrid=True,
-            title="Discharge (m³/s)",
-            titlefont=dict(size=12),
+            title=dict(text="Discharge (m³/s)", font=dict(size=12)),
         ),
         legend=dict(
             orientation="h",
@@ -754,7 +754,7 @@ if discharge_df is not None and not discharge_df.empty:
         ),
         hovermode="x unified",
     )
-    st.plotly_chart(fig_discharge, use_container_width=True)
+    st.plotly_chart(fig_discharge, width='stretch')
 
     # Monthly distribution box plot
     st.markdown("#### Monthly Discharge Distribution")
@@ -788,12 +788,63 @@ if discharge_df is not None and not discharge_df.empty:
         xaxis=dict(gridcolor="rgba(255,255,255,0.03)"),
         yaxis=dict(
             gridcolor="rgba(255,255,255,0.05)",
-            title="Discharge (m³/s)",
-            titlefont=dict(size=12),
+            title=dict(text="Discharge (m³/s)", font=dict(size=12)),
         ),
         showlegend=False,
     )
-    st.plotly_chart(fig_box, use_container_width=True)
+    st.plotly_chart(fig_box, width='stretch')
+    # ── Chart Summary ──────────────────────────
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">📋 Dashboard Chart Summary</div>', unsafe_allow_html=True)
+
+    overall_min = float(filtered["discharge_cms"].min())
+    overall_max = float(filtered["discharge_cms"].max())
+    overall_mean = float(filtered["discharge_cms"].mean())
+    overall_std = float(filtered["discharge_cms"].std())
+    recent_trend = "increasing" if len(filtered) > 60 and filtered["discharge_cms"].iloc[-30:].mean() > filtered["discharge_cms"].iloc[:30].mean() else "decreasing" if len(filtered) > 60 else "stable"
+    peak_month = filtered_box.groupby("month_name")["discharge_cms"].mean().idxmax() if not filtered_box.empty else "N/A"
+    low_month = filtered_box.groupby("month_name")["discharge_cms"].mean().idxmin() if not filtered_box.empty else "N/A"
+
+    max_monthly = filtered_box.groupby("month_name")["discharge_cms"].mean().max() if not filtered_box.empty else 0
+    min_monthly = filtered_box.groupby("month_name")["discharge_cms"].mean().min() if not filtered_box.empty else 0
+
+    summary_col1, summary_col2 = st.columns(2)
+
+    with summary_col1:
+        st.markdown(f"""
+        <div class="metric-card teal" style="text-align:left; padding:1.5rem;">
+            <div style="font-size:0.82rem; font-weight:600; color:#00D4AA; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.8rem;">
+                📈 Discharge Trends
+            </div>
+            <div style="color:#c8cdd5; font-size:0.9rem; line-height:1.7;">
+                • <strong>Mean flow:</strong> {overall_mean:.0f} m³/s (σ={overall_std:.0f})<br>
+                • <strong>Range:</strong> {overall_min:.0f} – {overall_max:.0f} m³/s<br>
+                • <strong>Peak month:</strong> {peak_month} ({max_monthly:.0f} m³/s)<br>
+                • <strong>Low month:</strong> {low_month} ({min_monthly:.0f} m³/s)<br>
+                • <strong>Trend:</strong> {recent_trend}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with summary_col2:
+        gauge_types = []
+        if analyze:
+            if prediction_result:
+                gauge_types.append(f"Flood Risk at <strong>{risk_pct:.0f}%</strong> — {'ELEVATED' if risk_pct >= 40 else 'LOW'}")
+            if compliance_result:
+                gauge_types.append(f"IFC PS4 Compliance at <strong>{comp_score}/100</strong> — {ps4_status}")
+        gauge_summary = "<br>".join(gauge_types) if gauge_types else "Run an analysis above to populate gauge data"
+        st.markdown(f"""
+        <div class="metric-card blue" style="text-align:left; padding:1.5rem;">
+            <div style="font-size:0.82rem; font-weight:600; color:#0078FF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.8rem;">
+                🎯 Gauge Overview
+            </div>
+            <div style="color:#c8cdd5; font-size:0.9rem; line-height:1.7;">
+                {gauge_summary}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
 else:
     st.info("📂 No historical discharge data found. Place `chisapani_master_cleaned.csv` in the `chisapani_yearly_csv/` directory.")
 
@@ -805,7 +856,7 @@ st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
 st.markdown("""
 <div style="text-align:center; padding:1.5rem 0 2rem; color:#4a5568;">
     <div style="font-size:0.85rem; font-weight:600; color:#8892a4;">
-        🏔️ AquaGuard Nepal &nbsp;·&nbsp; AI-Powered Hydropower ESG Monitoring
+        🏔️ PeakFlow Analytics &nbsp;·&nbsp; AI-Powered Hydropower ESG Monitoring
     </div>
     <div style="font-size:0.72rem; margin-top:0.4rem; color:#4a5568;">
         Built with Streamlit &nbsp;·&nbsp; PyTorch &nbsp;·&nbsp; Gemini AI &nbsp;·&nbsp; FastAPI

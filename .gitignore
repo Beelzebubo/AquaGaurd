@@ -1,4 +1,6 @@
 .env
 .venv
 __pycache__/
-*.pyc
+*.pycchisapani_yearly_csv/
+node_modules/
+package-lock.json

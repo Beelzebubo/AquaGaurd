@@ -13,9 +13,9 @@ from app.routes.alerts import router as alerts_router
 
 # ya hamle app ko title, description and version info deko basically.
 app = FastAPI(
-    title="AquaGuard Nepal",
+    title="PeakFlow Analytics",
     description=(
-        "AI-Powered IFC Compliance Monitoring"
+        "AI-Powered Hydropower ESG & IFC Compliance Monitoring"
     ),
     version="1.0.0"
 )
@@ -43,5 +43,5 @@ app.include_router(analytics_router)
 def root():
 # ya bata message pathauxa
     return {
-        "message": "HydroGuard Nepal API Running"
+        "message": "PeakFlow Analytics API Running"
     }
