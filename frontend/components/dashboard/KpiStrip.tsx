@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { EngineResult } from "@/lib/aquaguard-engine";
+import type { Station } from "@/data/stations";
 
 function CountUp({ value, suffix = "", decimals = 0 }: { value: number; suffix?: string; decimals?: number }) {
   const [n, setN] = useState(0);
@@ -35,7 +36,7 @@ const riskTint: Record<string, string> = {
   critical: "from-[oklch(0.68_0.24_25)] to-[oklch(0.55_0.22_15)]",
 };
 
-export function KpiStrip({ result }: { result: EngineResult | null }) {
+export function KpiStrip({ result, station }: { result: EngineResult | null; station?: Station }) {
   const tiles = [
     {
       label: "Predicted Risk",
@@ -71,8 +72,20 @@ export function KpiStrip({ result }: { result: EngineResult | null }) {
     },
   ];
 
+  if (station) {
+    tiles.push({
+      label: "Eco Threshold",
+      value: station.ecoThreshold,
+      suffix: " m³/s",
+      sub: (result?.compliance.compliant ?? true) ? "COMPLIANT" : "NON-COMPLIANT",
+      tint: (result?.compliance.compliant ?? true)
+        ? "from-[oklch(0.78_0.18_155)] to-[oklch(0.82_0.16_200)]"
+        : "from-[oklch(0.82_0.18_75)] to-[oklch(0.68_0.24_25)]",
+    });
+  }
+
   return (
-    <div className="grid grid-cols-2 gap-3 px-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 px-3 md:grid-cols-5">
       {tiles.map((t, i) => (
         <motion.div
           key={t.label}

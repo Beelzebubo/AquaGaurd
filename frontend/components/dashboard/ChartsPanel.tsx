@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { EngineResult } from "@/lib/aquaguard-engine";
 
-export function ChartsPanel({ result, ecoThreshold }: { result: EngineResult | null; ecoThreshold: number }) {
+export function ChartsPanel({ result, ecoThreshold, stationName }: { result: EngineResult | null; ecoThreshold: number; stationName: string }) {
   const data = result?.forecast ?? [];
   return (
     <motion.div
@@ -13,7 +13,7 @@ export function ChartsPanel({ result, ecoThreshold }: { result: EngineResult | n
     >
       <div>
         <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">24-hour forecast</p>
-        <h3 className="text-base font-semibold text-foreground">River flow vs ecological threshold</h3>
+        <h3 className="text-base font-semibold text-foreground">{stationName} · River flow vs ecological threshold</h3>
       </div>
       <div className="h-44 w-full">
         <ResponsiveContainer>
@@ -28,6 +28,7 @@ export function ChartsPanel({ result, ecoThreshold }: { result: EngineResult | n
             <XAxis dataKey="hour" stroke="oklch(0.72 0.02 220)" fontSize={10} tickFormatter={(v) => `${v}h`} />
             <YAxis stroke="oklch(0.72 0.02 220)" fontSize={10} />
             <Tooltip
+              cursor={false}
               contentStyle={{
                 background: "oklch(0.16 0.03 235 / 0.9)",
                 border: "1px solid oklch(0.4 0.04 230 / 0.5)",
@@ -50,6 +51,7 @@ export function ChartsPanel({ result, ecoThreshold }: { result: EngineResult | n
             <XAxis dataKey="hour" stroke="oklch(0.72 0.02 220)" fontSize={10} tickFormatter={(v) => `${v}h`} />
             <YAxis stroke="oklch(0.72 0.02 220)" fontSize={10} domain={[0, 100]} />
             <Tooltip
+              cursor={false}
               contentStyle={{
                 background: "oklch(0.16 0.03 235 / 0.9)",
                 border: "1px solid oklch(0.4 0.04 230 / 0.5)",

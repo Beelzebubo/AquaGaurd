@@ -78,7 +78,7 @@ Mention: ecological flow conditions, environmental risk, operational status, com
 }
 
 export const runAquaGuardAnalysis = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => InputSchema.parse(data))
+  .validator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
     const engineInput: EngineInput = {
       temperature: data.temperature,

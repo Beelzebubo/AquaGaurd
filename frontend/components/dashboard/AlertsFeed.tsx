@@ -30,7 +30,7 @@ export function AlertsFeed({ alerts }: { alerts: string[] }) {
           )}
           {alerts.map((a, i) => (
             <motion.li
-              key={`${i}-${a.slice(0, 20)}`}
+              key={`alert-${i}`}
               initial={{ x: 24, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -24, opacity: 0 }}
