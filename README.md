@@ -100,7 +100,7 @@ make retrain      # retrain model from scratch
 - **Seasonal hydropower potential** — interactive page with season selector (Winter/Spring/Monsoon/Autumn) using 47-year historical discharge means for Melamchi/Chisapani and generalized seasonal multipliers for all 10 stations, with NASA POWER live weather overlay
 - **Monitors IFC PS4 compliance** — compares real-time river flow against ecological minimum-flow thresholds for each station
 - **Scores ESG performance** — composites compliance, anomaly, and risk metrics into a single ESG score
-- **Generates AI summaries** — uses Gemini to write plain-English compliance reports (with optional ElevenLabs voice playback)
+- **Generates AI summaries** — uses Gemini to write plain-English compliance reports
 - **Interactive dashboard** — React frontend with Google Maps, Recharts, live gauges, and a KPI strip
 
 ---
@@ -118,8 +118,8 @@ make retrain      # retrain model from scratch
           │                              │                      │
      ┌────▼────┐                   ┌─────▼──────┐     ┌────────▼───────┐
      │PyTorch  │                   │  Gemini AI  │     │Hydropower      │
-     │Model    │                   │ (summary +  │     │Potential       │
-     │(on disk)│                   │  TTS voice) │     │Estimator       │
+     │Model    │                   │ (summary)   │     │Potential       │
+     │(on disk)│                   │              │     │Estimator       │
      └─────────┘                   └─────────────┘     └────────────────┘
 ```
 
@@ -134,7 +134,7 @@ make retrain      # retrain model from scratch
 | Hydropower potential estimation (flow → MW)                         | ✅ Verified                   |
 | Seasonal hydropower potential (historical + generalized, all 10 stations) | ✅ Verified                   |
 | Gemini AI compliance summaries                                      | ✅ Verified                   |
-| ElevenLabs TTS voice alerts                                         | ✅ Verified                   |
+
 | NASA POWER live weather fetcher                                     | ✅ Verified (free, no key)    |
 | Full-stack React dashboard with map, charts, KPI strip              | ✅ Verified                   |
 | 10-station support with per-station stats & thresholds              | ✅ Verified                   |
@@ -254,7 +254,7 @@ make clean          # Remove cache files
 - 📍 **Trained on 2 stations, estimated for 8.** Melamchi and Chisapani have full historical data; the other 8 use eco-threshold-based estimates.
 - 🌡️ **Climate non-stationarity.** Changing monsoon behaviour may degrade future performance without periodic retraining.
 - 📡 **NASA POWER provides weather variables, not river discharge.** Discharge comes from station CSV files (DHM gauge data). The live pipeline only adds weather signals.
-- 🗣️ **Voice and Gemini features are optional.** The dashboard works fully without API keys for TTS or AI summarisation.
+- 🤖 **Gemini AI summaries are optional.** The dashboard works fully without a Gemini API key.
 - 🌊 **Statistical flood definition.** "Flood" = discharge > 95th percentile of historical record, not a physical flood-zone delineation.
 
 ---
@@ -266,7 +266,7 @@ make clean          # Remove cache files
 | Frontend  | React 19, TanStack Router, TanStack Query, Tailwind CSS 4, Recharts, Google Maps |
 | Backend   | FastAPI, Uvicorn, Python 3.11+                                                   |
 | Model     | PyTorch 2.x, scikit-learn, NumPy, pandas                                         |
-| AI        | Google Gemini 1.5 Flash, ElevenLabs TTS                                          |
+| AI        | Google Gemini 1.5 Flash                                                          |
 | Live data | NASA POWER API (REST, free, no key)                                              |
 | Build     | Bun (frontend), pip (backend)                                                    |
 
