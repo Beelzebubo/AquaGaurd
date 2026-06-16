@@ -52,6 +52,7 @@ export function Topbar({
           { to: "/", label: "Dashboard" },
           { to: "/compliance", label: "Compliance" },
           { to: "/stations", label: "Stations" },
+          { to: "/hydropower", label: "Hydropower" },
         ].map(({ to, label }) => (
           <Link
             key={to}

@@ -97,6 +97,7 @@ make retrain      # retrain model from scratch
 - **Works across all river sizes** — the same model handles Melamchi (mean 0.5 m³/s) and Chisapani (mean 1,300 m³/s) via station-relative features
 - **Live NASA POWER weather pipeline** — fetches real-time satellite weather for any station's coordinates (free API, no key required)
 - **Estimates hydropower potential** — river flow + known station head heights → MW output using the standard formula P = ηρgQH
+- **Seasonal hydropower potential** — interactive page with season selector (Winter/Spring/Monsoon/Autumn) using 47-year historical discharge means for Melamchi/Chisapani and generalized seasonal multipliers for all 10 stations, with NASA POWER live weather overlay
 - **Monitors IFC PS4 compliance** — compares real-time river flow against ecological minimum-flow thresholds for each station
 - **Scores ESG performance** — composites compliance, anomaly, and risk metrics into a single ESG score
 - **Generates AI summaries** — uses Gemini to write plain-English compliance reports (with optional ElevenLabs voice playback)
@@ -131,6 +132,7 @@ make retrain      # retrain model from scratch
 | ESG composite scoring engine                                        | ✅ Verified                   |
 | Anomaly detection (rolling-flow deviation)                          | ✅ Verified                   |
 | Hydropower potential estimation (flow → MW)                         | ✅ Verified                   |
+| Seasonal hydropower potential (historical + generalized, all 10 stations) | ✅ Verified                   |
 | Gemini AI compliance summaries                                      | ✅ Verified                   |
 | ElevenLabs TTS voice alerts                                         | ✅ Verified                   |
 | NASA POWER live weather fetcher                                     | ✅ Verified (free, no key)    |
@@ -282,9 +284,9 @@ Hackathon-Final/
   Datasets/             # CSV data (weather, discharge)
   frontend/
     components/         # React UI components (dashboard, charts, map, KPI)
-    data/               # Frontend station definitions
+    data/               # Frontend station definitions + hydropower module
     lib/                # Client-side prediction engine, historical data functions
-    routes/             # TanStack Router routes
+    routes/             # TanStack Router routes (index, compliance, stations, hydropower)
   scripts/              # Utility scripts (evaluate, retrain, fetch NASA data)
   Makefile              # Common commands
   setup.sh              # One-command setup

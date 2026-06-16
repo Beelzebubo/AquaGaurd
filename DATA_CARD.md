@@ -95,10 +95,24 @@ The `fetch_nasa_weather.py` script and the `/predict` endpoint with
 
 ---
 
+## Hydropower Estimation
+
+Seasonal hydropower potential is computed client-side using the standard formula:
+
+```
+P (MW) = 0.85 × 1000 × 9.81 × Q × H / 1e6
+```
+
+Where Q is the seasonal mean flow (from CSVs or ecoThreshold-based generalization) and H is the station's known head height. The estimated power is compared against each station's installed capacity (MW) for utilization context.
+
+---
+
 ## Known Limitations
 
 - Only two stations have CSV data for training (Melamchi, Chisapani).
 - The other 8 stations use estimated flow statistics based on eco-threshold
   relationships.
+- Hydropower estimates for the 8 non-CSV stations use generalized seasonal
+  multipliers, not actual gauge records.
 - Weather data is reanalysis (model-hindcast), not direct sensor readings.
 - Discharge records may have undocumented gaps or rating-curve changes.
