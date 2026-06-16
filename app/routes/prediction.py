@@ -1,17 +1,21 @@
 """Prediction endpoint — supports both the old 4-feature model
 and the new cross-station 7-feature model with NASA POWER live weather.
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.services.model_service import predict_risk as predict_risk_old
 from app.services.cross_station_service import predict_flood_risk
 from app.services.nasa_service import fetch_live_weather
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/predict")
-def predict(data: dict):
+@limiter.limit("30/minute")
+def predict(data: dict, request: Request):
     """Flood risk prediction.
 
     Accepts:
@@ -26,7 +30,6 @@ def predict(data: dict):
     """
     station_id = data.get("station_id")
 
-    # ── New: cross-station mode ───────────────────────────────────────
     if station_id:
         from app.data.stations import STATIONS
         station = STATIONS.get(station_id)
@@ -40,7 +43,6 @@ def predict(data: dict):
         rolling     = data.get("rolling_flow")
         use_live    = data.get("live_weather", False)
 
-        # Fetch live NASA POWER weather if requested
         if use_live:
             try:
                 live = fetch_live_weather(
@@ -73,7 +75,6 @@ def predict(data: dict):
             "station_flow_stats": result["station_flow_stats"],
         }
 
-    # ── Old: backward-compatible 4-feature mode ───────────────────────
     temperature = data.get("temperature")
     rainfall    = data.get("rainfall")
     humidity    = data.get("humidity")

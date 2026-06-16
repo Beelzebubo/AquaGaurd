@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.services.compliance_engine import (
     evaluate_ifc_compliance
@@ -19,10 +21,12 @@ STATION_ECO_THRESHOLDS = {
 }
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/compliance")
-def compliance(data: dict):
+@limiter.limit("30/minute")
+def compliance(data: dict, request: Request):
     try:
         # Accept both river_flow (frontend) and current_flow (original API)
         current_flow = data.get("river_flow") or data.get("current_flow")

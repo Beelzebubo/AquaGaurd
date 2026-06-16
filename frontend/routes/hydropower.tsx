@@ -11,6 +11,7 @@ import {
   getSeasonalRainfallBaseline,
   type Season,
 } from "@/data/hydropower";
+import { Footer } from "@/components/layout/Footer";
 
 export const Route = createFileRoute("/hydropower")({
   head: () => ({
@@ -394,6 +395,7 @@ function HydropowerPage() {
           </div>
         </motion.div>
       </main>
+      <Footer />
     </div>
   );
 }

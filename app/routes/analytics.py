@@ -3,7 +3,9 @@
 Provides an aggregated endpoint for flood-risk forecasting,
 ESG scoring, hydropower potential estimation, and AI-generated summaries.
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.services.scoring import calculate_esg_score
 from app.services.risk_forecasting import forecast_risk
@@ -11,10 +13,12 @@ from app.services.hydropower import estimate_potential
 from app.services.gemini_service import generate_compliance_summary
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/analytics")
-def analytics(data: dict):
+@limiter.limit("10/minute")
+def analytics(data: dict, request: Request):
     # --- Forecast risk (tolerate missing keys) ---
     rainfall = data.get("rainfall", 0)
     humidity = data.get("humidity", 50)

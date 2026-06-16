@@ -11,6 +11,7 @@ import { ChartsPanel } from "@/components/dashboard/ChartsPanel";
 import { AlertsFeed } from "@/components/dashboard/AlertsFeed";
 import { AiSummaryFab } from "@/components/dashboard/AiSummaryFab";
 import { NepalRiversMap } from "@/components/map/NepalRiversMap";
+import { Footer } from "@/components/layout/Footer";
 import { stations } from "@/data/stations";
 import { runAquaGuardAnalysis } from "@/lib/aquaguard.functions";
 import { runEngine, type EngineResult } from "@/lib/aquaguard-engine";
@@ -183,6 +184,7 @@ function Index() {
         </div>
       </main>
       <AiSummaryFab summary={summary} busy={busy} generatedAt={generatedAt} />
+      <Footer />
     </div>
   );
 }

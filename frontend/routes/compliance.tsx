@@ -4,6 +4,7 @@ import { stations } from "@/data/stations";
 import { useServerFn } from "@tanstack/react-start";
 import { runAquaGuardAnalysis } from "@/lib/aquaguard.functions";
 import { runEngine } from "@/lib/aquaguard-engine";
+import { Footer } from "@/components/layout/Footer";
 
 export const Route = createFileRoute("/compliance")({
   head: () => ({
@@ -102,6 +103,7 @@ function CompliancePage() {
           );
         })}
       </div>
+      <Footer />
     </div>
   );
 }

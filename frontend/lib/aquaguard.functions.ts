@@ -59,9 +59,10 @@ Generate a concise IFC PS4 compliance summary (4-6 sentences) for a hydropower E
 Mention: ecological flow conditions, environmental risk, operational status, compliance interpretation, and a single concrete next action. Keep it professional, plain prose, no markdown headings.`;
 
   try {
-    const res = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
+    const aiUrl =
+      import.meta.env.VITE_LOVABLE_API_URL ||
+      "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const res = await fetch(aiUrl, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,

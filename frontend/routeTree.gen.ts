@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StationsRouteImport } from './routes/stations'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HydropowerRouteImport } from './routes/hydropower'
 import { Route as ComplianceRouteImport } from './routes/compliance'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const StationsRoute = StationsRouteImport.update({
   id: '/stations',
   path: '/stations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HydropowerRoute = HydropowerRouteImport.update({
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/compliance': typeof ComplianceRoute
   '/hydropower': typeof HydropowerRoute
+  '/privacy': typeof PrivacyRoute
   '/stations': typeof StationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/compliance': typeof ComplianceRoute
   '/hydropower': typeof HydropowerRoute
+  '/privacy': typeof PrivacyRoute
   '/stations': typeof StationsRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,28 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/compliance': typeof ComplianceRoute
   '/hydropower': typeof HydropowerRoute
+  '/privacy': typeof PrivacyRoute
   '/stations': typeof StationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/compliance' | '/hydropower' | '/stations'
+  fullPaths: '/' | '/compliance' | '/hydropower' | '/privacy' | '/stations'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/compliance' | '/hydropower' | '/stations'
-  id: '__root__' | '/' | '/compliance' | '/hydropower' | '/stations'
+  to: '/' | '/compliance' | '/hydropower' | '/privacy' | '/stations'
+  id:
+    | '__root__'
+    | '/'
+    | '/compliance'
+    | '/hydropower'
+    | '/privacy'
+    | '/stations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ComplianceRoute: typeof ComplianceRoute
   HydropowerRoute: typeof HydropowerRoute
+  PrivacyRoute: typeof PrivacyRoute
   StationsRoute: typeof StationsRoute
 }
 
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/stations'
       fullPath: '/stations'
       preLoaderRoute: typeof StationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hydropower': {
@@ -106,6 +129,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ComplianceRoute: ComplianceRoute,
   HydropowerRoute: HydropowerRoute,
+  PrivacyRoute: PrivacyRoute,
   StationsRoute: StationsRoute,
 }
 export const routeTree = rootRouteImport

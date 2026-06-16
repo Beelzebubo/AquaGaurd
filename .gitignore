@@ -16,9 +16,20 @@ dist-ssr
 .nitro
 *.local
 
+# Environment files (never commit real credentials)
+.env
+.env.*
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Generated audio files
+audio/
 
 # Editor directories and files
 .vscode/*
