@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
 import type { Station } from "@/data/stations";
+import { useState } from "react";
+import { fetchLiveWeather, type LiveWeather } from "@/lib/weather";
 
 export type Params = {
   temperature: number;
@@ -9,12 +11,54 @@ export type Params = {
   rollingFlow: number;
 };
 
-const fields: { key: keyof Params; label: string; min: number; max: number; step: number; suffix: string }[] = [
-  { key: "temperature", label: "Temperature", min: -5, max: 45, step: 0.5, suffix: "°C" },
-  { key: "rainfall", label: "Rainfall (24h)", min: 0, max: 300, step: 1, suffix: "mm" },
-  { key: "humidity", label: "Humidity", min: 0, max: 100, step: 1, suffix: "%" },
-  { key: "riverFlow", label: "River Flow", min: 0, max: 4000, step: 1, suffix: "m³/s" },
-  { key: "rollingFlow", label: "7-day Rolling Flow", min: 1, max: 4000, step: 1, suffix: "m³/s" },
+const fields: {
+  key: keyof Params;
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  suffix: string;
+}[] = [
+  {
+    key: "temperature",
+    label: "Temperature",
+    min: -5,
+    max: 45,
+    step: 0.5,
+    suffix: "°C",
+  },
+  {
+    key: "rainfall",
+    label: "Rainfall (24h)",
+    min: 0,
+    max: 300,
+    step: 1,
+    suffix: "mm",
+  },
+  {
+    key: "humidity",
+    label: "Humidity",
+    min: 0,
+    max: 100,
+    step: 1,
+    suffix: "%",
+  },
+  {
+    key: "riverFlow",
+    label: "River Flow",
+    min: 0,
+    max: 4000,
+    step: 1,
+    suffix: "m³/s",
+  },
+  {
+    key: "rollingFlow",
+    label: "7-day Rolling Flow",
+    min: 1,
+    max: 4000,
+    step: 1,
+    suffix: "m³/s",
+  },
 ];
 
 export function ParamControls({
@@ -30,6 +74,29 @@ export function ParamControls({
   onRun: () => void;
   busy: boolean;
 }) {
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [liveWeather, setLiveWeather] = useState<LiveWeather | null>(null);
+  const [weatherError, setWeatherError] = useState("");
+
+  const handleFetchLive = async () => {
+    setWeatherLoading(true);
+    setWeatherError("");
+    try {
+      const w = await fetchLiveWeather(station.lat, station.lng);
+      setLiveWeather(w);
+      onChange({
+        ...params,
+        temperature: Math.round(w.temperature * 2) / 2,
+        rainfall: Math.round(w.rainfall),
+        humidity: Math.round(w.humidity),
+      });
+    } catch (e) {
+      setWeatherError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setWeatherLoading(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ y: 24, opacity: 0 }}
@@ -37,21 +104,51 @@ export function ParamControls({
       transition={{ duration: 0.5, delay: 0.25 }}
       className="glass rounded-2xl p-4"
     >
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex items-start justify-between">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Sensor inputs</p>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+            Sensor inputs
+          </p>
           <h2 className="text-lg font-semibold text-foreground">
-            {station.name} <span className="text-muted-foreground">· {station.river}</span>
+            {station.name}{" "}
+            <span className="text-muted-foreground">· {station.river}</span>
           </h2>
+          {liveWeather && !weatherError && (
+            <p className="mt-1 font-mono text-xs text-muted-foreground">
+              Live: {liveWeather.temperature.toFixed(1)}°C ·{" "}
+              {liveWeather.rainfall.toFixed(1)}mm ·{" "}
+              {liveWeather.humidity.toFixed(0)}% RH
+            </p>
+          )}
+          {weatherError && (
+            <p className="mt-1 font-mono text-xs text-destructive">
+              Weather: {weatherError}
+            </p>
+          )}
         </div>
-        <button
-          onClick={onRun}
-          disabled={busy}
-          className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-[oklch(0.7_0.18_215)] px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_oklch(0.82_0.16_200/0.35)] transition-transform hover:scale-[1.03] active:scale-[0.97] disabled:opacity-60"
-        >
-          <span className="relative z-10">{busy ? "Analyzing…" : "Run Analysis"}</span>
-          {busy && <span className="absolute inset-0 shimmer" aria-hidden />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleFetchLive}
+            disabled={weatherLoading || busy}
+            className="relative overflow-hidden rounded-xl border border-[oklch(0.4_0.04_230/0.4)] bg-background/60 px-3 py-2 text-xs font-semibold text-foreground transition-all hover:bg-background/80 active:scale-[0.97] disabled:opacity-50"
+          >
+            {weatherLoading ? (
+              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            ) : (
+              "Live Weather"
+            )}
+          </button>
+          <button
+            onClick={onRun}
+            disabled={busy}
+            className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-[oklch(0.7_0.18_215)] px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_oklch(0.82_0.16_200/0.35)] transition-transform hover:scale-[1.03] active:scale-[0.97] disabled:opacity-60"
+          >
+            <span className="relative z-10">
+              {busy ? "Analyzing…" : "Run Analysis"}
+            </span>
+            {busy && <span className="absolute inset-0 shimmer" aria-hidden />}
+          </button>
+        </div>
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
         {fields.map((f) => (
@@ -69,14 +166,17 @@ export function ParamControls({
               max={f.max}
               step={f.step}
               value={params[f.key]}
-              onChange={(e) => onChange({ ...params, [f.key]: Number(e.target.value) })}
+              onChange={(e) =>
+                onChange({ ...params, [f.key]: Number(e.target.value) })
+              }
               className="mt-2 w-full accent-[var(--hydro-cyan)]"
             />
           </label>
         ))}
       </div>
       <p className="mt-3 text-[11px] text-muted-foreground">
-        Ecological flow threshold for {station.name}: <span className="text-foreground">{station.ecoThreshold} m³/s</span>
+        Ecological flow threshold for {station.name}:{" "}
+        <span className="text-foreground">{station.ecoThreshold} m³/s</span>
       </p>
     </motion.div>
   );

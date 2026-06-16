@@ -1,46 +1,54 @@
-"""
-Analytics Route Module
-Provides an aggregated endpoint for environmental forecasting, 
-ESG (Environmental, Social, and Governance) scoring, and AI-generated summaries.
+"""Analytics Route Module
+
+Provides an aggregated endpoint for flood-risk forecasting,
+ESG scoring, hydropower potential estimation, and AI-generated summaries.
 """
 from fastapi import APIRouter
 
 from app.services.scoring import calculate_esg_score
 from app.services.risk_forecasting import forecast_risk
-from app.services.gemini_service import (
-    generate_compliance_summary
-)
-# init the router for analytical related service
+from app.services.hydropower import estimate_potential
+from app.services.gemini_service import generate_compliance_summary
+
 router = APIRouter()
 
 
 @router.post("/analytics")
 def analytics(data: dict):
+    # --- Forecast risk (tolerate missing keys) ---
+    rainfall = data.get("rainfall", 0)
+    humidity = data.get("humidity", 50)
+    temperature = data.get("temperature", 20)
+    river_flow = data.get("river_flow", data.get("riverFlow", 1.0))
+    station_id = data.get("station_id", data.get("stationId", "melamchi"))
 
-    # Predict environmental risks based on weather parameters
-    forecast = forecast_risk(
-        data["rainfall"],
-        data["humidity"],
-        data["temperature"]
+    forecast = forecast_risk(rainfall, humidity, temperature)
+
+    # --- ESG score (tolerate missing keys) ---
+    compliance_score = data.get("compliance_score", data.get("complianceScore", 80))
+    anomaly_detected = data.get("anomaly_detected", data.get("anomalyDetected", False))
+    esg_score = calculate_esg_score(compliance_score, anomaly_detected)
+
+    # --- Hydropower potential ---
+    head_height = data.get("head_height", data.get("headHeight"))
+    hydro = estimate_potential(
+        river_flow=river_flow,
+        head_height=head_height,
+        station_id=station_id,
     )
 
-    # Calculate the ESG score based on current compliance and detected anomalies basically kati chai intrenational standards 
-    # sanga match garxa herxa
-    esg_score = calculate_esg_score(
-        data["compliance_score"],
-        data["anomaly_detected"]
-    )
-
-    # Leverage Gemini AI to generate a natural language summary of the current hydrological state
-    summary = generate_compliance_summary({
-        "river_flow": data["river_flow"],
-        "rainfall": data["rainfall"],
-        "humidity": data["humidity"],
-        "compliance_score": data["compliance_score"]
-    })
+    # --- Gemini summary (optional) ---
+    summary_payload = {
+        "river_flow": river_flow,
+        "rainfall": rainfall,
+        "humidity": humidity,
+        "compliance_score": compliance_score,
+    }
+    summary = generate_compliance_summary(summary_payload)
 
     return {
         "forecast": forecast,
         "esg_score": esg_score,
-        "ai_summary": summary
+        "hydropower": hydro,
+        "ai_summary": summary,
     }

@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-06-15T20:51:54.566813",
+  "dataset": "Melamchi + Chisapani combined (1979\u20132026)",
+  "train_samples": 26297,
+  "val_samples": 6575,
+  "val_flood_count": 396,
+  "features": [
+    "T2M",
+    "PRECTOTCORR",
+    "RH2M",
+    "flow_zscore",
+    "flow_ratio_eco",
+    "flow_ratio_p95",
+    "flow_spike"
+  ],
+  "confusion_matrix": {
+    "tn": 6177,
+    "fp": 2,
+    "fn": 91,
+    "tp": 305
+  },
+  "accuracy": 0.9859,
+  "precision": 0.9935,
+  "recall": 0.7702,
+  "f1": 0.8677,
+  "roc_auc": 0.9997,
+  "baseline_accuracy": 0.82
+}

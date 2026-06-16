@@ -2,9 +2,14 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   tanstackStart: {
-    routesDirectory: "./src/routes",
-    router: { entry: "../frontend/router.tsx" },
-    server: { entry: "../frontend/server.ts" },
+    srcDirectory: "./frontend",
+    routesDirectory: "./routes",
+    router: {
+      entry: "./router",
+    },
+    server: {
+      entry: "./server",
+    },
   } as Record<string, unknown>,
   vite: {
     resolve: {

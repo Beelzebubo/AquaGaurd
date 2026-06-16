@@ -16,7 +16,10 @@ const InputSchema = z.object({
 
 export type AnalysisInput = z.infer<typeof InputSchema>;
 
-function fallbackSummary(input: AnalysisInput, eng: ReturnType<typeof runEngine>): string {
+function fallbackSummary(
+  input: AnalysisInput,
+  eng: ReturnType<typeof runEngine>,
+): string {
   const status = eng.compliance.compliant
     ? "currently meeting IFC PS4 ecological-flow requirements"
     : `falling below IFC PS4 ecological flow by ${eng.compliance.deficit.toFixed(1)} m³/s`;
@@ -32,7 +35,10 @@ function fallbackSummary(input: AnalysisInput, eng: ReturnType<typeof runEngine>
   ].join(" ");
 }
 
-async function geminiSummary(input: AnalysisInput, eng: ReturnType<typeof runEngine>): Promise<string> {
+async function geminiSummary(
+  input: AnalysisInput,
+  eng: ReturnType<typeof runEngine>,
+): Promise<string> {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) return fallbackSummary(input, eng);
 
@@ -53,22 +59,38 @@ Generate a concise IFC PS4 compliance summary (4-6 sentences) for a hydropower E
 Mention: ecological flow conditions, environmental risk, operational status, compliance interpretation, and a single concrete next action. Keep it professional, plain prose, no markdown headings.`;
 
   try {
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: "You are AquaGuard, an IFC PS4 compliance analyst for Nepali hydropower plants." },
-          { role: "user", content: prompt },
-        ],
-      }),
-    });
+    const res = await fetch(
+      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are AquaGuard, an IFC PS4 compliance analyst for Nepali hydropower plants.",
+            },
+            { role: "user", content: prompt },
+          ],
+        }),
+      },
+    );
     if (!res.ok) {
-      console.error("Lovable AI error", res.status, await res.text().catch(() => ""));
+      console.error(
+        "Lovable AI error",
+        res.status,
+        await res.text().catch(() => ""),
+      );
       return fallbackSummary(input, eng);
     }
-    const j = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    const j = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
     const txt = j.choices?.[0]?.message?.content?.trim();
     return txt || fallbackSummary(input, eng);
   } catch (e) {
@@ -78,7 +100,7 @@ Mention: ecological flow conditions, environmental risk, operational status, com
 }
 
 export const runAquaGuardAnalysis = createServerFn({ method: "POST" })
-  .validator((data: unknown) => InputSchema.parse(data))
+  .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
     const engineInput: EngineInput = {
       temperature: data.temperature,

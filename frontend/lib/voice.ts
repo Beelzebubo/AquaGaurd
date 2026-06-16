@@ -1,6 +1,10 @@
 // Thin wrapper around the browser Web Speech API.
 
-type SpeakOpts = { onStart?: () => void; onEnd?: () => void; onError?: (e: unknown) => void };
+type SpeakOpts = {
+  onStart?: () => void;
+  onEnd?: () => void;
+  onError?: (e: unknown) => void;
+};
 
 let currentUtter: SpeechSynthesisUtterance | null = null;
 
@@ -14,7 +18,10 @@ function pickVoice(): SpeechSynthesisVoice | null {
   if (!voices.length) return null;
   const preferred = ["en-IN", "en-GB", "en-US"];
   for (const lang of preferred) {
-    const v = voices.find((v) => v.lang === lang && /female|natural|google|samantha|aria/i.test(v.name));
+    const v = voices.find(
+      (v) =>
+        v.lang === lang && /female|natural|google|samantha|aria/i.test(v.name),
+    );
     if (v) return v;
     const any = voices.find((v) => v.lang === lang);
     if (any) return any;

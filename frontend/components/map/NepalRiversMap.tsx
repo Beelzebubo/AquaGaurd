@@ -10,8 +10,12 @@ declare global {
   }
 }
 
-const BROWSER_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
-const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
+const BROWSER_KEY = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
+  import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY) as
+  | string
+  | undefined;
+const TRACKING_ID = import.meta.env
+  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
 
 const BASIN_COLORS: Record<string, string> = {
   Karnali: "#3ecbff",
@@ -23,15 +27,19 @@ const BASIN_COLORS: Record<string, string> = {
 let mapsLoadingPromise: Promise<void> | null = null;
 
 function loadGoogleMaps(): Promise<void> {
-  if (typeof window === "undefined") return Promise.reject(new Error("no window"));
+  if (typeof window === "undefined")
+    return Promise.reject(new Error("no window"));
   if (window.google?.maps) return Promise.resolve();
   if (mapsLoadingPromise) return mapsLoadingPromise;
-  if (!BROWSER_KEY) return Promise.reject(new Error("Google Maps browser key missing"));
+  if (!BROWSER_KEY)
+    return Promise.reject(new Error("Google Maps browser key missing"));
 
   mapsLoadingPromise = new Promise<void>((resolve, reject) => {
     window.__initAquaGuardMap = () => resolve();
     const s = document.createElement("script");
-    const tracking = TRACKING_ID ? `&channel=${encodeURIComponent(TRACKING_ID)}` : "";
+    const tracking = TRACKING_ID
+      ? `&channel=${encodeURIComponent(TRACKING_ID)}`
+      : "";
     s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__initAquaGuardMap${tracking}`;
     s.async = true;
     s.defer = true;
@@ -41,20 +49,47 @@ function loadGoogleMaps(): Promise<void> {
   return mapsLoadingPromise;
 }
 
-// Dark hydro map style
 const MAP_STYLE: google.maps.MapTypeStyle[] = [
   { elementType: "geometry", stylers: [{ color: "#0d1822" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#0d1822" }] },
   { elementType: "labels.text.fill", stylers: [{ color: "#7aa8c4" }] },
-  { featureType: "administrative.country", elementType: "geometry.stroke", stylers: [{ color: "#3ecbff" }, { weight: 1.2 }] },
-  { featureType: "administrative.province", elementType: "geometry.stroke", stylers: [{ color: "#2a4a5f" }] },
-  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#13202c" }] },
+  {
+    featureType: "administrative.country",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#3ecbff" }, { weight: 1.2 }],
+  },
+  {
+    featureType: "administrative.province",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#2a4a5f" }],
+  },
+  {
+    featureType: "landscape",
+    elementType: "geometry",
+    stylers: [{ color: "#13202c" }],
+  },
   { featureType: "poi", stylers: [{ visibility: "off" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1a2a38" }] },
-  { featureType: "road", elementType: "labels", stylers: [{ visibility: "off" }] },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#1a2a38" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels",
+    stylers: [{ visibility: "off" }],
+  },
   { featureType: "transit", stylers: [{ visibility: "off" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0a1a26" }] },
-  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3ecbff" }] },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#0a1a26" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#3ecbff" }],
+  },
 ];
 
 export function NepalRiversMap({
@@ -87,7 +122,6 @@ export function NepalRiversMap({
         });
         mapRef.current = map;
 
-        // River polylines
         for (const r of nepalRivers) {
           const path = r.coords.map(([lng, lat]) => ({ lat, lng }));
           new window.google.maps.Polyline({
@@ -98,7 +132,6 @@ export function NepalRiversMap({
             strokeWeight: 2.5,
             map,
           });
-          // glow underlay
           new window.google.maps.Polyline({
             path,
             geodesic: true,
@@ -109,7 +142,6 @@ export function NepalRiversMap({
           });
         }
 
-        // Station markers
         for (const st of stations) {
           const marker = new window.google.maps.Marker({
             position: { lat: st.lat, lng: st.lng },
@@ -133,9 +165,8 @@ export function NepalRiversMap({
     return () => {
       cancelled = true;
     };
-  }, []); // mount once
+  }, []);
 
-  // Update marker highlight when selection changes
   useEffect(() => {
     if (!window.google) return;
     for (const [id, marker] of markersRef.current) {
@@ -150,12 +181,17 @@ export function NepalRiversMap({
       });
     }
     const sel = stations.find((s) => s.id === selectedId);
-    if (sel && mapRef.current) mapRef.current.panTo({ lat: sel.lat, lng: sel.lng });
+    if (sel && mapRef.current)
+      mapRef.current.panTo({ lat: sel.lat, lng: sel.lng });
   }, [selectedId]);
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl">
-      <div ref={containerRef} className="h-full w-full" aria-label="Nepal river system map" />
+      <div
+        ref={containerRef}
+        className="h-full w-full"
+        aria-label="Nepal river system map"
+      />
       {!BROWSER_KEY && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/80 text-sm text-muted-foreground">
           Google Maps key missing — reconnect the Google Maps connector.
@@ -163,8 +199,14 @@ export function NepalRiversMap({
       )}
       <div className="pointer-events-none absolute bottom-3 left-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-wider">
         {Object.entries(BASIN_COLORS).map(([basin, color]) => (
-          <span key={basin} className="flex items-center gap-1.5 rounded-full bg-background/70 px-2 py-1 text-foreground/80 backdrop-blur">
-            <span className="h-2 w-2 rounded-full" style={{ background: color }} />
+          <span
+            key={basin}
+            className="flex items-center gap-1.5 rounded-full bg-background/70 px-2 py-1 text-foreground/80 backdrop-blur"
+          >
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ background: color }}
+            />
             {basin}
           </span>
         ))}

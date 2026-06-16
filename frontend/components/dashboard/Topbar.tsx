@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { stations } from "@/data/stations";
@@ -12,7 +13,10 @@ export function Topbar({
   const [now, setNow] = useState<string>("--:--:--");
   useEffect(() => {
     setNow(new Date().toLocaleTimeString("en-GB"));
-    const t = setInterval(() => setNow(new Date().toLocaleTimeString("en-GB")), 1000);
+    const t = setInterval(
+      () => setNow(new Date().toLocaleTimeString("en-GB")),
+      1000,
+    );
     return () => clearInterval(t);
   }, []);
 
@@ -25,7 +29,10 @@ export function Topbar({
     >
       <div className="flex items-center gap-3">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-primary/40 blur-md" aria-hidden />
+          <div
+            className="absolute inset-0 rounded-full bg-primary/40 blur-md"
+            aria-hidden
+          />
           <div className="relative grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.65_0.18_215)] font-bold text-primary-foreground">
             ▲
           </div>
@@ -39,7 +46,28 @@ export function Topbar({
           </p>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-3" suppressHydrationWarning>
+
+      <nav className="flex items-center gap-1">
+        {[
+          { to: "/", label: "Dashboard" },
+          { to: "/compliance", label: "Compliance" },
+          { to: "/stations", label: "Stations" },
+        ].map(({ to, label }) => (
+          <Link
+            key={to}
+            to={to}
+            activeProps={{ className: "bg-primary/20 text-primary" }}
+            className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground"
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      <div
+        className="flex flex-wrap items-center gap-3"
+        suppressHydrationWarning
+      >
         <label className="sr-only" htmlFor="station">
           Station
         </label>

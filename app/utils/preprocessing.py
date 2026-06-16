@@ -3,8 +3,8 @@ import pandas as pd
 #pandas import for data manipulation
 def load_datasets():
     # data set lai load garya. Melamchi koriver flow and weather data.
-    water_df = pd.read_csv("data/melamchi_waterflow.csv")
-    weather_df = pd.read_csv("data/melamchi_weather.csv")
+    water_df = pd.read_csv("Datasets/melamchi_waterflow.csv")
+    weather_df = pd.read_csv("Datasets/melamchi_weather.csv")
 # data cleaning garera merge garya . The cleaned data has 2 cloumns date and river_flow.
     water_df.columns = ["date", "river_flow"]
 # weather data has 5 cloumns year, day_of_year, temperature, rainfall and humidity

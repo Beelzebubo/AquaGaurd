@@ -1,25 +1,16 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { isSpeaking, speak, stopSpeaking } from "@/lib/voice";
+import { useState } from "react";
 
-export function AiSummaryFab({ summary, busy, generatedAt }: { summary: string; busy: boolean; generatedAt: string | null }) {
+export function AiSummaryFab({
+  summary,
+  busy,
+  generatedAt,
+}: {
+  summary: string;
+  busy: boolean;
+  generatedAt: string | null;
+}) {
   const [open, setOpen] = useState(true);
-  const [speaking, setSpeaking] = useState(false);
-
-  useEffect(() => () => stopSpeaking(), []);
-  useEffect(() => {
-    const i = setInterval(() => setSpeaking(isSpeaking()), 300);
-    return () => clearInterval(i);
-  }, []);
-
-  const onVoice = () => {
-    if (speaking) {
-      stopSpeaking();
-      setSpeaking(false);
-    } else if (summary) {
-      speak(summary, { onStart: () => setSpeaking(true), onEnd: () => setSpeaking(false), onError: () => setSpeaking(false) });
-    }
-  };
 
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-40 max-w-[min(420px,calc(100vw-2rem))]">
@@ -42,9 +33,13 @@ export function AiSummaryFab({ summary, busy, generatedAt }: { summary: string; 
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-foreground">Gemini Compliance Summary</p>
+                  <p className="text-xs font-semibold text-foreground">
+                    AquaGuard AI Summary
+                  </p>
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {generatedAt ? new Date(generatedAt).toLocaleTimeString("en-GB") : "—"}
+                    {generatedAt
+                      ? new Date(generatedAt).toLocaleTimeString("en-GB")
+                      : "—"}
                   </p>
                 </div>
               </div>
@@ -65,19 +60,11 @@ export function AiSummaryFab({ summary, busy, generatedAt }: { summary: string; 
               ) : summary ? (
                 summary
               ) : (
-                <span className="text-muted-foreground">Run an analysis to generate a summary.</span>
+                <span className="text-muted-foreground">
+                  Run an analysis to generate a summary.
+                </span>
               )}
             </div>
-            <button
-              onClick={onVoice}
-              disabled={!summary || busy}
-              className="group relative mt-3 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-[oklch(0.82_0.16_200/0.4)] bg-gradient-to-r from-primary/20 to-[oklch(0.7_0.18_280/0.2)] px-4 py-2 text-sm font-semibold text-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-            >
-              <span className={`relative grid h-6 w-6 place-items-center rounded-full bg-primary/30 ${speaking ? "pulse-ring" : ""}`}>
-                {speaking ? "■" : "▶"}
-              </span>
-              {speaking ? "Stop voice" : "Voice Summary"}
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
