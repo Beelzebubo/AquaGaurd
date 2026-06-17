@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-import { tanstackRouterVite } from '@tanstack/router-vite-plugin';
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'; // Import from here
 import path from 'path';
 
 export default defineConfig({
   plugins: [
-    tanstackRouterVite({
+    TanStackRouterVite({
       routesDirectory: './routes',
     }),
     tanstackStart(),
@@ -13,11 +13,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './'),
-    },
-  },
-  build: {
-    rollupOptions: {
-      external: ['react-is'],
     },
   },
 });

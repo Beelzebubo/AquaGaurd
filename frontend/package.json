@@ -1,44 +1,27 @@
 {
   "name": "tanstack_start_ts",
   "private": true,
-  "sideEffects": false,
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
-    "build": "npx vinxi build",
-    "start": "node .output/server/index.mjs",
-    "lint": "eslint .",
-    "format": "prettier --write ."
+    "build": "vinxi build",
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "vinxi": "latest",
-    "@hookform/resolvers": "latest",
-    "@radix-ui/react-dialog": "latest",
-    "@radix-ui/react-dropdown-menu": "latest",
-    "@radix-ui/react-label": "latest",
-    "@radix-ui/react-slot": "latest",
-    "@tailwindcss/vite": "latest",
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
     "@tanstack/react-start": "latest",
-    "class-variance-authority": "latest",
-    "clsx": "latest",
-    "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "recharts": "latest",
-    "tailwind-merge": "latest",
-    "tailwindcss": "latest",
+    "vinxi": "latest",
     "zod": "latest"
   },
   "devDependencies": {
     "@tanstack/react-start-plugin": "latest",
-    "@tanstack/router-plugin": "latest",
     "@tanstack/router-vite-plugin": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "@vitejs/plugin-react": "latest",
     "typescript": "latest",
     "vite": "latest"
   }
