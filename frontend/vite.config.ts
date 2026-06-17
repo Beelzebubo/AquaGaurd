@@ -11,8 +11,7 @@ const __dirname = dirname(__filename);
 export default defineConfig({
   plugins: [
     TanStackRouterVite({
-      // FORCE the path to be the absolute path to your 'routes' folder
-      // This solves the ENOENT error
+      // We are pointing it explicitly to the 'routes' folder in the root
       routesDirectory: path.resolve(__dirname, 'routes'),
                        generatedRouteTree: path.resolve(__dirname, 'routeTree.gen.ts'),
     }),
