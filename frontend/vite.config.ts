@@ -5,22 +5,19 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [
-    // tanstackStart handles the server-side logic
-    tanstackStart(),
-    // tanstackRouterVite handles your file-based routing
     tanstackRouterVite({
-      routesDirectory: './routes', // Points to your 'routes' folder
+      routesDirectory: './routes',
     }),
+    tanstackStart(),
   ],
   resolve: {
     alias: {
-      // Maps '@/' to the current directory (the 'frontend' folder)
       '@': path.resolve(__dirname, './'),
     },
   },
   build: {
+    // TanStack Start handles bundling; make sure we don't over-externalize
     rollupOptions: {
-      // Bypasses the specific module resolution error for react-is
       external: ['react-is'],
     },
   },
