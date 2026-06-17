@@ -35,73 +35,48 @@ function fallbackSummary(
   ].join(" ");
 }
 
-async function geminiSummary(
+async function backendSummary(
   input: AnalysisInput,
   eng: ReturnType<typeof runEngine>,
 ): Promise<string> {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) return fallbackSummary(input, eng);
-
-  const prompt = `Station: ${input.stationName} (${input.river} river)
-River Flow: ${input.riverFlow.toFixed(1)} m³/s
-Ecological Threshold: ${input.ecoThreshold} m³/s
-Rainfall (24h): ${input.rainfall} mm
-Humidity: ${input.humidity}%
-Temperature: ${input.temperature}°C
-Compliance Ratio: ${eng.compliance.ratio.toFixed(2)}
-Compliance Status: ${eng.compliance.compliant ? "COMPLIANT" : "NON-COMPLIANT"}
-Predicted Risk: ${eng.predictedRisk.level} (${Math.round(eng.predictedRisk.score * 100)}%)
-Anomaly Detected: ${eng.anomalyDetected ? "YES" : "NO"}
-ESG Score: ${eng.esgScore}/100
-Active Alerts: ${eng.alerts.length ? eng.alerts.join(" | ") : "none"}
-
-Generate a concise IFC PS4 compliance summary (4-6 sentences) for a hydropower ESG monitoring dashboard.
-Mention: ecological flow conditions, environmental risk, operational status, compliance interpretation, and a single concrete next action. Keep it professional, plain prose, no markdown headings.`;
+  const apiUrl = import.meta.env.VITE_APP_URL;
+  if (!apiUrl) return fallbackSummary(input, eng);
 
   try {
-    const aiUrl =
-      import.meta.env.VITE_LOVABLE_API_URL ||
-      "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const res = await fetch(aiUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are AquaGuard, an IFC PS4 compliance analyst for Nepali hydropower plants.",
-            },
-            { role: "user", content: prompt },
-          ],
-        }),
-      },
-    );
+    const res = await fetch(`${apiUrl}/analytics`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        station_id: input.stationId,
+        rainfall: input.rainfall,
+        humidity: input.humidity,
+        temperature: input.temperature,
+        river_flow: input.riverFlow,
+        compliance_score: Math.round(eng.compliance.ratio * 100),
+        anomaly_detected: eng.anomalyDetected,
+      }),
+    });
     if (!res.ok) {
       console.error(
-        "Lovable AI error",
+        "Backend analytics error",
         res.status,
         await res.text().catch(() => ""),
       );
       return fallbackSummary(input, eng);
     }
     const j = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
+      ai_summary?: { summary?: string };
     };
-    const txt = j.choices?.[0]?.message?.content?.trim();
+    const txt = j.ai_summary?.summary?.trim();
     return txt || fallbackSummary(input, eng);
   } catch (e) {
-    console.error("Gemini summary failed:", e);
+    console.error("Backend summary failed:", e);
     return fallbackSummary(input, eng);
   }
 }
 
 export const runAquaGuardAnalysis = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => InputSchema.parse(data))
+  .validator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
     const engineInput: EngineInput = {
       temperature: data.temperature,
@@ -112,6 +87,6 @@ export const runAquaGuardAnalysis = createServerFn({ method: "POST" })
       ecoThreshold: data.ecoThreshold,
     };
     const engine = runEngine(engineInput);
-    const summary = await geminiSummary(data, engine);
+    const summary = await backendSummary(data, engine);
     return { engine, summary, generatedAt: new Date().toISOString() };
   });

@@ -10,12 +10,8 @@ declare global {
   }
 }
 
-const BROWSER_KEY = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
-  import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY) as
-  | string
-  | undefined;
-const TRACKING_ID = import.meta.env
-  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
+const BROWSER_KEY = import.meta.env
+  .VITE_GOOGLE_MAPS_API_KEY as string | undefined;
 
 const BASIN_COLORS: Record<string, string> = {
   Karnali: "#3ecbff",
@@ -37,10 +33,7 @@ function loadGoogleMaps(): Promise<void> {
   mapsLoadingPromise = new Promise<void>((resolve, reject) => {
     window.__initAquaGuardMap = () => resolve();
     const s = document.createElement("script");
-    const tracking = TRACKING_ID
-      ? `&channel=${encodeURIComponent(TRACKING_ID)}`
-      : "";
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__initAquaGuardMap${tracking}`;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__initAquaGuardMap`;
     s.async = true;
     s.defer = true;
     s.onerror = () => reject(new Error("Failed to load Google Maps script"));
