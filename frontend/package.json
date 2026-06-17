@@ -8,21 +8,20 @@
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
+    "@tanstack/start": "latest",
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
-    "@tanstack/react-start": "latest",
     "react": "latest",
     "react-dom": "latest",
     "vinxi": "latest",
     "zod": "latest"
   },
   "devDependencies": {
-    "@tanstack/react-start-plugin": "latest",
-    "@tanstack/router-vite-plugin": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "typescript": "latest",
-    "vite": "latest"
+    "vite": "latest",
+    "vite-tsconfig-paths": "latest"
   }
 }

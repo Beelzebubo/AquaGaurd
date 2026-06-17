@@ -1,14 +1,10 @@
-import { defineConfig } from "@tanstack/react-start/config";
+import { defineConfig } from "@tanstack/start/config";
 
 export default defineConfig({
-    // This forces vinxi to look in 'routes', not 'src/routes'
+    // Vinxi uses this to find your routes automatically based on your folder structure
     routers: {
         client: {
-            entry: "./index.tsx", // Ensure this path matches your actual entry file
+            entry: "./index.tsx",
         },
-    },
-    vite: {
-        // This plugin configuration overrides the internal TanStack defaults
-        plugins: [],
     },
 });
