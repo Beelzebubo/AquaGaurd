@@ -1,7 +1,12 @@
 import { defineConfig } from 'vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'; // Import from here
-import path from 'path';
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Recreate __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
   plugins: [
@@ -12,7 +17,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './'),
+      '@': __dirname, // Now __dirname is safely defined
     },
   },
 });
