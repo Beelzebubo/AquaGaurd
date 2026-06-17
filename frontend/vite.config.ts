@@ -1,21 +1,9 @@
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  tanstackStart: {
-    srcDirectory: "./frontend",
-    routesDirectory: "./routes",
-    router: {
-      entry: "./router",
-    },
-    server: {
-      entry: "./server",
-    },
-  } as Record<string, unknown>,
-  vite: {
-    resolve: {
-      alias: {
-        "@": `${process.cwd()}/frontend`,
-      },
+  build: {
+    rollupOptions: {
+      external: ['react-is'],
     },
   },
 });
