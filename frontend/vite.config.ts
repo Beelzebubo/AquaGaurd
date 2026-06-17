@@ -16,7 +16,6 @@ export default defineConfig({
     },
   },
   build: {
-    // TanStack Start handles bundling; make sure we don't over-externalize
     rollupOptions: {
       external: ['react-is'],
     },
