@@ -18,6 +18,6 @@ export default defineConfig({
         routesDirectory: './routes',
       },
     }),
-    nitro({ preset: process.env.NITRO_PRESET || 'node' }),
+    nitro({ preset: 'node' }),
   ],
 });
