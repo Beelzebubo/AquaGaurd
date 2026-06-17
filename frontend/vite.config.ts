@@ -1,13 +1,11 @@
 import { defineConfig } from 'vite';
-import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import { tanstackRouterVite } from '@tanstack/router-vite-plugin';
 
 export default defineConfig({
-  plugins: [tanstackStart()],
-  build: {
-    rollupOptions: {
-     
-      input: 'start.ts',
-      external: ['react-is'],
-    },
-  },
+  plugins: [
+    tanstackRouterVite({
+      routesDirectory: './routes', // Tell it to look here instead of src/routes
+    }),
+  ],
+  // ... rest of your config
 });
