@@ -4,13 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
-    "build": "vinxi build",
+    "build": "rm -rf .vinxi && vinxi build",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@tanstack/start": "latest",
-    "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
+    "@tanstack/react-query": "latest",
     "react": "latest",
     "react-dom": "latest",
     "vinxi": "latest",
