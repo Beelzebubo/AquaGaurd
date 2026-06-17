@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
-    "build": "vinxi build",
-    "start": "vinxi start",
+    "build": "npx vinxi build",
+    "start": "node .output/server/index.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
   "dependencies": {
+    "vinxi": "latest",
     "@hookform/resolvers": "latest",
     "@radix-ui/react-dialog": "latest",
     "@radix-ui/react-dropdown-menu": "latest",
