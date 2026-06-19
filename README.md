@@ -19,74 +19,35 @@ This project uses **47 years of historical river discharge data (1979–2026)** 
 * **Data Provenance:** The model is currently trained on continuous, 47-year historical daily discharge records from two primary index basins: Melamchi and Chisapani. For the remaining 8 pre-configured stations, baseline hydro-statistics were estimated using established ecological minimum-flow thresholds.
 * **Methodological Scalability:** Rather than a system flaw, we view this data constraint as a structural opportunity. The PeakFlow architecture is intentionally engineered to be entirely modular. As the Nepal Department of Hydrology and Meteorology (DHM) continues to digitize historical gauge data across additional basins, these new CSV records can be directly ingested into our preprocessing pipeline. Broadening the training set to include more indexed stations will directly scale the model's nationwide accuracy without requiring an overhaul of the neural network's core architecture.
 
-## Quick Start — clone and run in under 5 minutes
-
-### Prerequisites
-
-- **Python 3.11+**
-- **Bun** (for the frontend) — `curl -fsSL https://bun.sh/install | bash`
-- **Git**
-
-### One-command
+## Quick Start
 
 ```bash
-# Clone
 git clone <repo-url>
 cd Hackathon-Final
 
-# Setup (venv + deps + model verification)
-bash setup.sh
+# One-command
+bash setup.sh && bash run_demo.sh
 
-# Demo (backend + frontend + sample predictions)
-bash run_demo.sh
-```
-
-### Step by step
-
-```bash
-# Backend
-python3 -m venv venv
-source venv/bin/activate
+# Or step by step:
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-python run.py
-# → http://localhost:8000  |  API docs at http://localhost:8000/docs
+cp .env.example .env && python run.py
+# → http://localhost:8000
 
-# Frontend (separate terminal)
-cd frontend
-bun install
-bun run dev
+cd frontend && bun install && bun run dev
 # → http://localhost:5173
 ```
 
-### Verify it works
+### Verify
 
 ```bash
-# Normal conditions (Chisapani — 0% risk)
 curl -s -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
   -d '{"station_id":"chisapani","temperature":22,"rainfall":18,"humidity":72,"river_flow":392}'
 
-# Flood conditions (Chisapani — 99% risk)
 curl -s -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
   -d '{"station_id":"chisapani","temperature":30,"rainfall":55,"humidity":85,"river_flow":5200}'
-
-# Live NASA POWER weather (no API key needed)
-curl -s -X POST http://localhost:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"station_id":"chisapani","live_weather":true,"river_flow":420}'
-```
-
-### Makefile shortcuts
-
-```bash
-make setup        # install everything
-make run-backend  # backend only
-make run-frontend # frontend only
-make run-demo     # both + sample predictions
-make eval         # run evaluation
-make retrain      # retrain model from scratch
 ```
 
 ---
@@ -105,145 +66,111 @@ make retrain      # retrain model from scratch
 
 ---
 
-## Architecture
+## Features
 
-```
-┌─────────────────────┐      ┌────────────────────────────────┐
-│   React Frontend    │◄────►│       FastAPI Backend           │
-│  (Bun + TanStack)   │      │      (Python 3.11+)             │
-│  :5173 (dev)        │      │      :8000                      │
-└─────────────────────┘      └──────────┬─────────────────────┘
-                                         │
-          ┌──────────────────────────────┼──────────────────────┐
-          │                              │                      │
-     ┌────▼────┐                   ┌─────▼──────┐     ┌────────▼───────┐
-     │PyTorch  │                   │  Gemini AI  │     │Hydropower      │
-     │Model    │                   │ (summary)   │     │Potential       │
-     │(on disk)│                   │              │     │Estimator       │
-     └─────────┘                   └─────────────┘     └────────────────┘
-```
+| Feature | Status |
+|---------|--------|
+| Flood-risk prediction (98.59% accuracy, all 10 stations) | ✅ |
+| IFC PS4 ecological-flow compliance | ✅ |
+| ESG composite scoring | ✅ |
+| Anomaly detection | ✅ |
+| Hydropower potential (flow → MW) | ✅ |
+| Seasonal hydropower (all 10 stations) | ✅ |
+| NASA POWER live weather | ✅ |
+| Gemini AI compliance summaries | ✅ |
+| React dashboard (map, charts, KPI strip) | ✅ |
 
-### Features verified
+### Planned
 
-| Feature                                                             | Status                        |
-| ------------------------------------------------------------------- | ----------------------------- |
-| Cross-station flood-risk prediction (7-feature NN, all 10 stations) | ✅ Verified — 98.59% accuracy |
-| IFC PS4 ecological-flow compliance check                            | ✅ Verified                   |
-| ESG composite scoring engine                                        | ✅ Verified                   |
-| Anomaly detection (rolling-flow deviation)                          | ✅ Verified                   |
-| Hydropower potential estimation (flow → MW)                         | ✅ Verified                   |
-| Seasonal hydropower potential (historical + generalized, all 10 stations) | ✅ Verified                   |
-| Gemini AI compliance summaries                                      | ✅ Verified                   |
-
-| NASA POWER live weather fetcher                                     | ✅ Verified (free, no key)    |
-| Full-stack React dashboard with map, charts, KPI strip              | ✅ Verified                   |
-| 10-station support with per-station stats & thresholds              | ✅ Verified                   |
-
-### Planned / in progress
-
-| Feature                             | Status     |
-| ----------------------------------- | ---------- |
-| Dockerised `docker-compose up`      | 🚧 Planned |
-| SMS / Telegram early-warning alerts | 📋 Roadmap |
-| LSTM / GRU model baseline           | 📋 Roadmap |
-| Multi-basin spatial model           | 📋 Roadmap |
+| Feature | Status |
+|---------|--------|
+| Docker compose | 🚧 |
+| SMS / Telegram alerts | 📋 |
+| LSTM / GRU baseline | 📋 |
+| Multi-basin spatial model | 📋 |
 
 ---
 
-## API Endpoints
+## API
 
-| Method | Path          | Description                                | Required fields                                                             |
-| ------ | ------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
-| GET    | `/health`     | Health + version                           | —                                                                           |
-| POST   | `/predict`    | Flood-risk prediction                      | `temperature`, `rainfall`, `humidity`, `river_flow` + optional `station_id` |
-| POST   | `/alerts`     | Anomaly detection / alerts                 | `river_flow`, `rolling_flow`                                                |
-| POST   | `/compliance` | IFC PS4 compliance check                   | `river_flow` + optional `station_id`                                        |
-| POST   | `/analytics`  | Full ESG + forecast + hydropower + summary | `riverFlow`, `temperature`, `rainfall`, `humidity`, `station_id`            |
+| Method | Path | What it does |
+|--------|------|-------------|
+| `GET` | `/health` | Health + version |
+| `POST` | `/predict` | Flood-risk prediction |
+| `POST` | `/alerts` | Anomaly detection |
+| `POST` | `/compliance` | IFC PS4 compliance check |
+| `POST` | `/analytics` | ESG + forecast + hydropower + summary |
 
-Full OpenAPI spec at **http://localhost:8000/docs** once the backend is running.
+Full OpenAPI at `/docs` once the backend is running.
 
 ---
 
-## Supported Stations
+## Stations
 
-| Station           | River         | Basin   | Eco Threshold (m³/s) |
-| ----------------- | ------------- | ------- | -------------------- |
-| Chisapani         | Karnali       | Karnali | 280                  |
-| Upper Tamakoshi   | Tamakoshi     | Koshi   | 35                   |
-| Melamchi          | Melamchi      | Bagmati | 12                   |
-| Kulekhani         | Kulekhani     | Bagmati | 8                    |
-| Kali Gandaki A    | Kali Gandaki  | Gandaki | 95                   |
-| Middle Marsyangdi | Marsyangdi    | Gandaki | 45                   |
-| Trishuli 3A       | Trishuli      | Gandaki | 38                   |
-| Arun III          | Arun          | Koshi   | 120                  |
-| Sapta Koshi       | Sapta Koshi   | Koshi   | 320                  |
-| Budhi Gandaki     | Budhi Gandaki | Gandaki | 110                  |
+| Station | River | Basin | Eco Threshold |
+|---------|-------|-------|--------------|
+| Chisapani | Karnali | Karnali | 280 m³/s |
+| Upper Tamakoshi | Tamakoshi | Koshi | 35 |
+| Melamchi | Melamchi | Bagmati | 12 |
+| Kulekhani | Kulekhani | Bagmati | 8 |
+| Kali Gandaki A | Kali Gandaki | Gandaki | 95 |
+| Middle Marsyangdi | Marsyangdi | Gandaki | 45 |
+| Trishuli 3A | Trishuli | Gandaki | 38 |
+| Arun III | Arun | Koshi | 120 |
+| Sapta Koshi | Sapta Koshi | Koshi | 320 |
+| Budhi Gandaki | Budhi Gandaki | Gandaki | 110 |
 
 ---
 
 ## Evaluation
 
-The model is a **2-layer feed-forward neural network** trained on **station-relative features** that generalise across rivers. Full methodology in [`EVALUATION.md`](./EVALUATION.md).
+2-layer feed-forward network trained on station-relative features. Chronological 80/20 split (train 1981–2015, test 2015–2024). Flood = discharge > station 95th percentile. 7 features (temp, rainfall, humidity + 4 flow features). Persistence baseline: ~82%, linear regression: ~88%.
 
-### Accuracy Criteria
-
-| Metric        | Value      | Meaning                                                |
-| ------------- | ---------- | ------------------------------------------------------ |
-| **Accuracy**  | **98.59%** | Correct predictions / total                            |
-| **Precision** | **99.35%** | When model says "flood", it's right 99.35% of the time |
-| **Recall**    | **77.02%** | Model catches ~3 out of 4 actual flood events          |
-| **F1 Score**  | **0.868**  | Harmonic mean of precision and recall                  |
-| **ROC-AUC**   | **0.9997** | Near-perfect ranking ability                           |
-
-**Evaluation methodology:**
-
-- **Chronological 80/20 split** (train on 1981–~2015, test on ~2015–2024) — the gold standard for time-series forecasting
-- **Flood label** = discharge > station-specific 95th percentile
-- **7 features:** Temperature, Rainfall, Humidity + 4 station-relative flow features (flow_zscore, flow_ratio_eco, flow_ratio_p95, flow_spike_ratio)
-- **Baseline comparison:** Persistence baseline yields ~82% accuracy, linear regression ~88%
-
-### Confusion Matrix
+| Metric | Value |
+|--------|-------|
+| Accuracy | 98.59% |
+| Precision | 99.35% |
+| Recall | 77.02% |
+| F1 | 0.868 |
+| ROC-AUC | 0.9997 |
 
 ```
-                    Pred: No Flood    Pred: Flood
-    Actual No Flood      6177             2
-    Actual Flood          91            305
+                Pred: No Flood    Pred: Flood
+Actual No Flood     6177             2
+Actual Flood         91            305
 ```
-
-### Reproduce the evaluation
 
 ```bash
 python scripts/evaluate.py
-# → loads saved model, runs time-based validation, prints rich report
-# → saves JSON metrics to app/models/eval_metrics.json
 ```
+
+Full methodology in [`EVALUATION.md`](./EVALUATION.md).
 
 ---
 
-## Data Sources
+## Data
 
-| Dataset             | Source                | Range     | Rows   | Columns                |
-| ------------------- | --------------------- | --------- | ------ | ---------------------- |
-| Melamchi weather    | NASA POWER reanalysis | 1981–2024 | 16,437 | T2M, PRECTOTCORR, RH2M |
-| Melamchi discharge  | Nepal DHM gauge       | 1940–2024 | 31,414 | Daily flow (m³/s)      |
-| Chisapani weather   | NASA POWER reanalysis | 1981–2024 | 16,437 | T2M, PRECTOTCORR, RH2M |
-| Chisapani discharge | Nepal DHM gauge       | 1979–2026 | 17,168 | Daily flow (m³/s)      |
+| Dataset | Source | Range |
+|---------|--------|-------|
+| Melamchi weather | NASA POWER | 1981–2024 |
+| Melamchi discharge | Nepal DHM | 1940–2024 |
+| Chisapani weather | NASA POWER | 1981–2024 |
+| Chisapani discharge | Nepal DHM | 1979–2026 |
 
-See [`DATA_CARD.md`](./DATA_CARD.md) for full details and [`MODEL_CARD.md`](./MODEL_CARD.md) for model architecture and intended use.
+See [`DATA_CARD.md`](./DATA_CARD.md) and [`MODEL_CARD.md`](./MODEL_CARD.md).
 
 ---
 
 ## Development
 
 ```bash
-# Run all commands from project root
-make setup          # Install both backend and frontend deps
-make run-backend    # Start backend only
-make run-frontend   # Start frontend only
-make run-demo       # Start both + print URLs + sample predictions
-make eval           # Run evaluation
-make retrain        # Retrain cross-station model from scratch
-make clean          # Remove cache files
+make setup        # install everything
+make run-backend  # backend only
+make run-frontend # frontend only
+make run-demo     # both + sample predictions
+make eval         # run evaluation
+make retrain      # retrain model
+make clean        # remove cache files
 ```
 
 ---
@@ -261,14 +188,14 @@ make clean          # Remove cache files
 
 ## Tech Stack
 
-| Layer     | Technology                                                                       |
-| --------- | -------------------------------------------------------------------------------- |
-| Frontend  | React 19, TanStack Router, TanStack Query, Tailwind CSS 4, Recharts, Google Maps |
-| Backend   | FastAPI, Uvicorn, Python 3.11+                                                   |
-| Model     | PyTorch 2.x, scikit-learn, NumPy, pandas                                         |
-| AI        | Google Gemini 1.5 Flash                                                          |
-| Live data | NASA POWER API (REST, free, no key)                                              |
-| Build     | Bun (frontend), pip (backend)                                                    |
+| Layer | |
+|-------|-|
+| Frontend | React 19, TanStack Router/Query, Tailwind CSS 4, Recharts, Google Maps |
+| Backend | FastAPI, Uvicorn, Python 3.11+ |
+| Model | PyTorch 2.x, scikit-learn |
+| AI | Google Gemini 1.5 Flash |
+| Live data | NASA POWER API (free, no key) |
+| Build | Bun (frontend), pip (backend) |
 
 ---
 
@@ -276,35 +203,14 @@ make clean          # Remove cache files
 
 ```
 Hackathon-Final/
-  app/
-    data/               # Station metadata, constants
-    models/             # Trained model weights, station stats, evaluation metrics
-    routes/             # FastAPI route handlers (predict, alerts, compliance, analytics)
-    services/           # Business logic (model inference, NASA POWER, TTS, Gemini, scoring)
-  Datasets/             # CSV data (weather, discharge)
-  frontend/
-    components/         # React UI components (dashboard, charts, map, KPI)
-    data/               # Frontend station definitions + hydropower module
-    lib/                # Client-side prediction engine, historical data functions
-    routes/             # TanStack Router routes (index, compliance, stations, hydropower)
-  scripts/              # Utility scripts (evaluate, retrain, fetch NASA data)
-  Makefile              # Common commands
-  setup.sh              # One-command setup
-  run_demo.sh           # One-command demo
-  requirements.txt      # Python dependencies
-  package.json          # Frontend dependencies
-  .env.example          # Environment template
-  EVALUATION.md         # Detailed accuracy criteria
-  DATA_CARD.md          # Dataset provenance
-  MODEL_CARD.md         # Model documentation
+  app/           # Backend — data, models, routes, services
+  Datasets/      # CSV weather + discharge data
+  frontend/      # React — components, routes, data
+  scripts/       # evaluate, retrain, NASA data fetcher
 ```
 
 ---
 
 ## License
 
-MIT — see [`LICENSE`](./LICENSE).
-
----
-
-_Built for Nepal — where hydropower and community safety go hand in hand._
+MIT
