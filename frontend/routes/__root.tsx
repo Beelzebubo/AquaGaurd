@@ -7,9 +7,10 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { type ReactNode, useState, useCallback } from "react";
 
 import appCss from "../styles.css?url";
+import { StartupScreen } from "../components/StartupScreen";
 
 function NotFoundComponent() {
   return (
@@ -119,10 +120,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 );
 
 function RootShell({ children }: { children: ReactNode }) {
+  const healthUrl = import.meta.env.VITE_APP_URL || "";
   return (
     <html lang="en" className="dark">
       <head>
         <HeadContent />
+        {healthUrl && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: [
+                "(function(){",
+                "var u=" + JSON.stringify(healthUrl) + ";",
+                "var o=document.getElementById('startup-overlay');",
+                "if(!o)return;",
+                "function c(){",
+                "fetch(u+'/health',{signal:AbortSignal.timeout(5000)})",
+                ".then(function(r){if(r.ok){",
+                "window.__backendReady=!0;o.classList.add('fade-out');",
+                "}})['catch'](function(){});",
+                "}",
+                "c();setInterval(c,2000);",
+                "})();",
+              ].join(""),
+            }}
+          />
+        )}
       </head>
       <body>
         {children}
@@ -134,9 +156,12 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [startupReady, setStartupReady] = useState(false);
+  const onReady = useCallback(() => setStartupReady(true), []);
 
   return (
     <QueryClientProvider client={queryClient}>
+      {!startupReady && <StartupScreen onReady={onReady} />}
       <Outlet />
     </QueryClientProvider>
   );
