@@ -164,7 +164,7 @@ function Index() {
       <main className="mt-4 flex flex-col gap-3">
         <KpiStrip result={result} />
         <div className="grid grid-cols-1 gap-3 px-3 lg:grid-cols-[1.4fr_1fr]">
-          <div className="glass h-[460px] overflow-hidden rounded-2xl p-2">
+          <div className="glass h-[250px] sm:h-[300px] lg:h-[460px] overflow-hidden rounded-2xl p-2">
             <NepalRiversMap
               selectedId={selectedId}
               onSelect={(s) => setSelectedId(s.id)}

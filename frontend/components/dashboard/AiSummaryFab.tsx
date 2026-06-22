@@ -46,7 +46,7 @@ export function AiSummaryFab({
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Collapse"
-                className="rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+                className="touch-target-sm rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground active:text-foreground"
               >
                 ✕
               </button>

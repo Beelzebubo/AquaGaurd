@@ -47,7 +47,7 @@ export function Topbar({
         </div>
       </div>
 
-      <nav className="flex items-center gap-1">
+      <nav className="flex flex-wrap items-center gap-1">
         {[
           { to: "/", label: "Dashboard" },
           { to: "/compliance", label: "Compliance" },
@@ -58,7 +58,7 @@ export function Topbar({
             key={to}
             to={to}
             activeProps={{ className: "bg-primary/20 text-primary" }}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground"
+            className="touch-target-sm rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground active:bg-background/60 active:text-foreground"
           >
             {label}
           </Link>

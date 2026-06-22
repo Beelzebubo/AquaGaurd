@@ -59,7 +59,7 @@ export function AlertsFeed({ alerts }: { alerts: string[] }) {
                       : "bg-[var(--alert-amber)]"
                   }`}
                 />
-                <span>{a}</span>
+                <span className="word-break-any">{a}</span>
               </motion.li>
             );
           })}

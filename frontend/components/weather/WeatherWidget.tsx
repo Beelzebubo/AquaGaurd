@@ -74,7 +74,7 @@ export function WeatherWidget({
       <button
         onClick={load}
         disabled={loading}
-        className="mt-2 w-full rounded-md border border-[var(--border)] bg-[var(--bg-muted)] px-2 py-1 text-[11px] font-medium text-[var(--text-dim)] transition-colors hover:border-[var(--accent-dim)] hover:text-[var(--accent)] disabled:opacity-50"
+        className="mt-2 w-full rounded-md border border-[var(--border)] bg-[var(--bg-muted)] px-2 py-1 text-[11px] font-medium text-[var(--text-dim)] transition-colors hover:border-[var(--accent-dim)] hover:text-[var(--accent)] active:border-[var(--accent-dim)] active:text-[var(--accent)] disabled:opacity-50"
       >
         {loading ? "Loading..." : "Refresh Weather"}
       </button>
