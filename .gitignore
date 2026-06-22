@@ -14,6 +14,7 @@ dist-ssr
 .vinxi
 .tanstack/**
 .nitro
+.netlify/
 *.local
 
 # Environment files (never commit real credentials)
