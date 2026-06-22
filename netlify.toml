@@ -1,4 +1,4 @@
 [build]
   base = "frontend"
-  command = "npm run build"
+  command = "npm run build && bash scripts/netlify-postbuild.sh"
   publish = ".output/public"
