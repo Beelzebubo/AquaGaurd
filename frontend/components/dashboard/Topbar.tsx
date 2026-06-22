@@ -25,7 +25,7 @@ export function Topbar({
       initial={{ y: -24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="glass sticky top-3 z-30 mx-3 flex flex-col gap-3 rounded-2xl px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6"
+      className="glass z-30 mx-3 flex flex-col gap-3 rounded-2xl px-4 py-3 md:sticky md:top-3 md:flex-row md:items-center md:justify-between md:px-6"
     >
       <div className="flex items-center gap-3">
         <div className="relative">
