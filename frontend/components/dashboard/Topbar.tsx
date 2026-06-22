@@ -47,7 +47,7 @@ export function Topbar({
         </div>
       </div>
 
-      <nav className="flex flex-wrap items-center gap-1">
+      <nav className="flex items-center gap-1 overflow-x-auto hide-scrollbar" style={{ WebkitOverflowScrolling: "touch" }}>
         {[
           { to: "/", label: "Dashboard" },
           { to: "/compliance", label: "Compliance" },
@@ -85,8 +85,7 @@ export function Topbar({
             </option>
           ))}
         </select>
-        <div className="flex items-center gap-2 rounded-xl bg-background/60 px-3 py-2 text-xs font-mono tabular-nums text-foreground/90">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-[oklch(0.78_0.18_155)]" />
+        <div className="rounded-xl bg-background/60 px-3 py-2 text-xs font-mono tabular-nums text-foreground/90">
           {now} <span className="text-muted-foreground">NPT</span>
         </div>
       </div>
