@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
+from app.schemas import PredictRequest
 from app.services.model_service import predict_risk as predict_risk_old
 from app.services.cross_station_service import predict_flood_risk
 from app.services.nasa_service import fetch_live_weather
@@ -15,7 +16,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/predict")
 @limiter.limit("30/minute")
-def predict(data: dict, request: Request):
+def predict(data: PredictRequest, request: Request):
     """Flood risk prediction.
 
     Accepts:
@@ -28,7 +29,7 @@ def predict(data: dict, request: Request):
     humidity from the NASA POWER API for the station's coordinates, then uses
     the provided river_flow (or the station's P50 flow if none given).
     """
-    station_id = data.get("station_id")
+    station_id = data.station_id
 
     if station_id:
         from app.data.stations import STATIONS
@@ -36,12 +37,12 @@ def predict(data: dict, request: Request):
         if not station:
             raise HTTPException(400, f"Unknown station '{station_id}'")
 
-        temperature = data.get("temperature")
-        rainfall    = data.get("rainfall")
-        humidity    = data.get("humidity")
-        river_flow  = data.get("river_flow")
-        rolling     = data.get("rolling_flow")
-        use_live    = data.get("live_weather", False)
+        temperature = data.temperature
+        rainfall    = data.rainfall
+        humidity    = data.humidity
+        river_flow  = data.river_flow
+        rolling     = data.rolling_flow
+        use_live    = data.live_weather
 
         if use_live:
             try:
@@ -75,10 +76,10 @@ def predict(data: dict, request: Request):
             "station_flow_stats": result["station_flow_stats"],
         }
 
-    temperature = data.get("temperature")
-    rainfall    = data.get("rainfall")
-    humidity    = data.get("humidity")
-    river_flow  = data.get("river_flow")
+    temperature = data.temperature
+    rainfall    = data.rainfall
+    humidity    = data.humidity
+    river_flow  = data.river_flow
 
     if temperature is None or rainfall is None or humidity is None or river_flow is None:
         raise HTTPException(400, "Missing required fields: temperature, rainfall, humidity, river_flow")

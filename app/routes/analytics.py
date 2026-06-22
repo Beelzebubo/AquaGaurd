@@ -7,6 +7,7 @@ from fastapi import APIRouter, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
+from app.schemas import AnalyticsRequest
 from app.services.scoring import calculate_esg_score
 from app.services.risk_forecasting import forecast_risk
 from app.services.hydropower import estimate_potential
@@ -18,23 +19,23 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/analytics")
 @limiter.limit("10/minute")
-def analytics(data: dict, request: Request):
-    # --- Forecast risk (tolerate missing keys) ---
-    rainfall = data.get("rainfall", 0)
-    humidity = data.get("humidity", 50)
-    temperature = data.get("temperature", 20)
-    river_flow = data.get("river_flow", data.get("riverFlow", 1.0))
-    station_id = data.get("station_id", data.get("stationId", "melamchi"))
+def analytics(data: AnalyticsRequest, request: Request):
+    # --- Forecast risk ---
+    rainfall = data.rainfall
+    humidity = data.humidity
+    temperature = data.temperature
+    river_flow = data.river_flow
+    station_id = data.station_id
 
     forecast = forecast_risk(rainfall, humidity, temperature)
 
-    # --- ESG score (tolerate missing keys) ---
-    compliance_score = data.get("compliance_score", data.get("complianceScore", 80))
-    anomaly_detected = data.get("anomaly_detected", data.get("anomalyDetected", False))
+    # --- ESG score ---
+    compliance_score = data.compliance_score
+    anomaly_detected = data.anomaly_detected
     esg_score = calculate_esg_score(compliance_score, anomaly_detected)
 
     # --- Hydropower potential ---
-    head_height = data.get("head_height", data.get("headHeight"))
+    head_height = data.head_height
     hydro = estimate_potential(
         river_flow=river_flow,
         head_height=head_height,

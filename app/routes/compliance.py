@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
+from app.schemas import ComplianceRequest
 from app.services.compliance_engine import (
     evaluate_ifc_compliance
 )
@@ -26,19 +27,19 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/compliance")
 @limiter.limit("30/minute")
-def compliance(data: dict, request: Request):
+def compliance(data: ComplianceRequest, request: Request):
     try:
-        # Accept both river_flow (frontend) and current_flow (original API)
-        current_flow = data.get("river_flow") or data.get("current_flow")
+        current_flow = data.river_flow if data.river_flow is not None else data.current_flow
         if current_flow is None:
             raise HTTPException(
                 status_code=400,
                 detail="Missing required field: river_flow or current_flow"
             )
 
-        # Look up eco_threshold from station_id, or accept it directly
-        station_id = data.get("station_id", "").lower()
-        eco_threshold = data.get("eco_threshold") or STATION_ECO_THRESHOLDS.get(station_id)
+        station_id = data.station_id.lower() if data.station_id else ""
+        eco_threshold = data.eco_threshold
+        if eco_threshold is None and station_id:
+            eco_threshold = STATION_ECO_THRESHOLDS.get(station_id)
         if eco_threshold is None:
             raise HTTPException(
                 status_code=400,
@@ -52,5 +53,5 @@ def compliance(data: dict, request: Request):
         return result
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
