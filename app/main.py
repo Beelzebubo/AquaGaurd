@@ -1,4 +1,4 @@
-"""AquaGuard — FastAPI backend entrypoint.
+"""AquaGuard —FastAPI backend entrypoint.
 
 Mounts static directories, configures CORS + rate limiting + optional
 API-key authentication, and registers all route modules.
