@@ -1,4 +1,4 @@
-# PeakFlow Analytics ⛰️📊
+# AquaGaurd
 
 **AI-powered flood-risk prediction, IFC PS4 ecological-flow compliance monitoring, and ESG assessment for Nepal's hydropower infrastructure.**
 
@@ -12,7 +12,7 @@ This project uses **47 years of historical river discharge data (1979–2026)** 
 
 ### Scalability, Cross-Station Generalization, and Data Limitations
 
-**Is this network applicable to all rivers in Nepal?** Yes. The core innovation of PeakFlow Analytics lies in its **river-agnostic feature engineering**. By normalising localized hydrology into station-relative metrics (such as `flow_zscore` and `flow_spike`), the underlying feed-forward neural network bypasses the need to memorize absolute discharge values. This enables a single model instance to successfully evaluate risk on small mountain catchments (Melamchi, mean flow ~0.5 $m^3/s$) and massive lowland river systems (Chisapani, mean flow ~1,300 $m^3/s$) simultaneously.
+**Is this network applicable to all rivers in Nepal?** Yes. The core innovation of AquaGaurd lies in its **river-agnostic feature engineering**. By normalising localized hydrology into station-relative metrics (such as `flow_zscore` and `flow_spike`), the underlying feed-forward neural network bypasses the need to memorize absolute discharge values. This enables a single model instance to successfully evaluate risk on small mountain catchments (Melamchi, mean flow ~0.5 $m^3/s$) and massive lowland river systems (Chisapani, mean flow ~1,300 $m^3/s$) simultaneously.
 
 #### Current Index Basins vs. National Scaling
 
