@@ -60,20 +60,43 @@ def predict(data: PredictRequest, request: Request):
         if river_flow is None:
             raise HTTPException(400, "Missing river_flow")
 
-        result = predict_flood_risk(
-            station_id=station_id,
-            temperature=float(temperature),
-            rainfall=float(rainfall),
-            humidity=float(humidity),
-            river_flow=float(river_flow),
-            rolling_flow=float(rolling) if rolling else None,
-        )
+        try:
+            result = predict_flood_risk(
+                station_id=station_id,
+                temperature=float(temperature),
+                rainfall=float(rainfall),
+                humidity=float(humidity),
+                river_flow=float(river_flow),
+                rolling_flow=float(rolling) if rolling else None,
+            )
+        except ValueError:
+            result = None
+
+        if result is not None:
+            return {
+                "predicted_risk": result["probability"],
+                "risk_level": result["risk_level"],
+                "threshold_flow_m3s": result["threshold_flow_m3s"],
+                "threshold_eco_m3s": result["threshold_eco_m3s"],
+                "station_flow_stats": result["station_flow_stats"],
+            }
+
+        features = [[
+            float(temperature),
+            float(rainfall),
+            float(humidity),
+            float(river_flow),
+        ]]
+        prediction = predict_risk_old(features)
+        eco = station.get("ecoThreshold", 0)
+        p95 = river_flow * 1.1
+        level = "HIGH" if prediction > 0.65 else "MODERATE" if prediction > 0.35 else "LOW"
         return {
-            "predicted_risk": result["probability"],
-            "risk_level": result["risk_level"],
-            "threshold_flow_m3s": result["threshold_flow_m3s"],
-            "threshold_eco_m3s": result["threshold_eco_m3s"],
-            "station_flow_stats": result["station_flow_stats"],
+            "predicted_risk": prediction,
+            "risk_level": level,
+            "threshold_flow_m3s": round(p95, 1),
+            "threshold_eco_m3s": eco,
+            "station_flow_stats": None,
         }
 
     temperature = data.temperature
